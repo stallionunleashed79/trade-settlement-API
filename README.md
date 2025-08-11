@@ -1,2 +1,2 @@
 # trade-settlement-API
-API Project for Trade Settlement
+API Project for Trade Settlement Service
