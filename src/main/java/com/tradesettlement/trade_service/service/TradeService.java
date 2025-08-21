@@ -36,7 +36,6 @@ public class TradeService {
     private String tradeEventsTopic;
     private final TradeServiceUtil tradeServiceUtil;
     private final KafkaTemplate<String, Object> kafkaProducer;
-    private final RedisTemplate<String, Object> redisTemplate;
     private final IdempotencyKeyRepository idempotencyKeyRepository;
     private final TradeMapper tradeMapper;
     private final TradeRepository tradeRepository;
