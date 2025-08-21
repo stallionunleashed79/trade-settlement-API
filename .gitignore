@@ -1,7 +1,6 @@
 HELP.md
 target/
-.mvn/wrapper/
-.mvn/wrapper/maven-wrapper.properties
+/.mvn
 !**/src/main/**/target/
 !**/src/test/**/target/
 mvnw
