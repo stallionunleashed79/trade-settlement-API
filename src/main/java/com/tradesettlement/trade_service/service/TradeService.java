@@ -33,12 +33,12 @@ import java.util.stream.Collectors;
 public class TradeService {
 
     private final TradeServiceUtil tradeServiceUtil;
-    private final KafkaTemplate<String, Object> kafkaProducer;
     private final IdempotencyKeyRepository idempotencyKeyRepository;
     private final TradeMapper tradeMapper;
     private final TradeRepository tradeRepository;
     private final OutboxEventRepository outboxEventRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
 
     @Transactional
     public List<Trade> uploadCsvFile(final MultipartFile file) {
