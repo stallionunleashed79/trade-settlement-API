@@ -1,7 +1,6 @@
 // OutboxEventPublisher.java
 package com.tradesettlement.trade_service.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tradesettlement.trade_service.entities.OutboxEvent;
 import com.tradesettlement.trade_service.repository.OutboxEventRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +24,6 @@ public class OutboxEventPublisher {
 
     private final OutboxEventRepository outboxEventRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
-    private final ObjectMapper objectMapper;
     @Value("${trade.events.topic}")
     private String tradeEventsTopic;
 
