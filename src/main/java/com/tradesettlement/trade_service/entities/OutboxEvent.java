@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -30,20 +31,13 @@ public class OutboxEvent {
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private EventStatus status;
-    
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt; // Or Date, Timestamp
     
     @Column(name = "processed_at")
     private LocalDateTime processedAt;
-    
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        if (status == null) {
-            status = EventStatus.PENDING;
-        }
-    }
     
     public enum EventStatus {
         PENDING, PROCESSING, SENT, FAILED

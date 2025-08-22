@@ -1,30 +1,30 @@
 package com.tradesettlement.trade_service.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.tradesettlement.trade_service.entities.IdempotencyKeyEntity;
+import com.tradesettlement.trade_service.entities.OutboxEvent;
 import com.tradesettlement.trade_service.entities.TradeEntity;
 import com.tradesettlement.trade_service.exceptions.DuplicateFileException;
 import com.tradesettlement.trade_service.mapper.TradeMapper;
 import com.tradesettlement.trade_service.models.ErrorResponse;
 import com.tradesettlement.trade_service.models.Trade;
-import com.tradesettlement.trade_service.models.TradeRequest;
 import com.tradesettlement.trade_service.repository.IdempotencyKeyRepository;
+import com.tradesettlement.trade_service.repository.OutboxEventRepository;
 import com.tradesettlement.trade_service.repository.TradeRepository;
 import com.tradesettlement.trade_service.util.TradeServiceUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,16 +32,17 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TradeService {
 
-    @Value("${trade.events.topic}")
-    private String tradeEventsTopic;
     private final TradeServiceUtil tradeServiceUtil;
     private final KafkaTemplate<String, Object> kafkaProducer;
     private final IdempotencyKeyRepository idempotencyKeyRepository;
     private final TradeMapper tradeMapper;
     private final TradeRepository tradeRepository;
+    private final OutboxEventRepository outboxEventRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
     public List<Trade> uploadCsvFile(final MultipartFile file) {
+        objectMapper.registerModule(new JavaTimeModule());
         final List<Trade> trades = tradeServiceUtil.buildTradeEvents(file);
         final String correlationId = UUID.randomUUID().toString();
         // Check for duplicate using Redis
@@ -58,25 +59,25 @@ public class TradeService {
         final List<TradeEntity> tradeEntities = trades.stream().map(
                 tradeMapper::toEntity).toList();
         tradeRepository.saveAll(tradeEntities);
-        // Mark request as processing in Redis
-        trades.forEach(trade -> {
-            final TradeRequest tradeRequest = TradeRequest.builder()
-                    .correlationId(correlationId)
-                    .payload(trade)
-                    .timestamp(LocalDateTime.now())
-                    .build();
-            final CompletableFuture<SendResult<String, Object>> future = kafkaProducer.send(tradeEventsTopic, tradeRequest);
-            future.whenComplete((result, throwable) -> {
-                if (throwable == null) {
-                    log.info("Successfully published event {} to topic {}",
-                            correlationId, tradeEventsTopic);
-                } else {
-                    log.error("Failed to publish event {} to topic {}",
-                            correlationId, tradeEventsTopic, throwable);
-                }
-            });
-        });
+        final List<OutboxEvent> outboxEvents = trades.stream().map(
+                trade -> createOutboxEvent(trade, correlationId)).toList();
+        outboxEventRepository.saveAll(outboxEvents);
         return trades;
+    }
+
+    private OutboxEvent createOutboxEvent(final Trade request, final String correlationId) {
+        try {
+            OutboxEvent outboxEvent = new OutboxEvent();
+            outboxEvent.setAggregateId(correlationId);
+            outboxEvent.setEventType("USER_REQUEST");
+            outboxEvent.setEventData(objectMapper.writeValueAsString(request));
+            outboxEvent.setStatus(OutboxEvent.EventStatus.PENDING);
+            log.info("Outbox event created for correlationId: {}", correlationId);
+            return outboxEvent;
+        } catch (JsonProcessingException e) {
+            log.error("Failed to serialize request for outbox event", e);
+            throw new RuntimeException("Failed to create outbox event", e);
+        }
     }
 
     public List<Trade> getAllTrades() {
