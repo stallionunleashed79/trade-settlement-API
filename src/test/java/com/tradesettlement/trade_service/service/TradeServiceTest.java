@@ -41,7 +41,6 @@ public class TradeServiceTest {
         OutboxEventRepository outboxEventRepositoryMock = mock(OutboxEventRepository.class);
         tradeService = new TradeService(tradeServiceUtil, idempotencyKeyRepositoryMock,
                 tradeMapperMock, tradeRepositoryMock, outboxEventRepositoryMock);
-
     }
 
     @Test
