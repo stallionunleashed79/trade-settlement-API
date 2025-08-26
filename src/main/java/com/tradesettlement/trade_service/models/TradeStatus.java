@@ -6,5 +6,6 @@ public enum TradeStatus {
     VALIDATED,
     SETTLING,
     SETTLED,
-    FAILED
+    FAILED,
+    VALIDATION_FAILED
 }
