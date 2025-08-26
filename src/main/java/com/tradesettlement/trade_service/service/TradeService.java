@@ -39,7 +39,6 @@ public class TradeService {
     private final OutboxEventRepository outboxEventRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-
     @Transactional
     public List<Trade> uploadCsvFile(final MultipartFile file) {
         objectMapper.registerModule(new JavaTimeModule());
