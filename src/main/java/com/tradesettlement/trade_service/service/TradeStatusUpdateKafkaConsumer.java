@@ -2,11 +2,9 @@ package com.tradesettlement.trade_service.service;
 
 import com.tradesettlement.trade_service.models.Trade;
 import com.tradesettlement.trade_service.models.TradeRequest;
-import com.tradesettlement.trade_service.models.TradeStatus;
 import com.tradesettlement.trade_service.models.TradeStatusUpdate;
 import com.tradesettlement.trade_service.repository.TradeRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +22,7 @@ public class TradeStatusUpdateKafkaConsumer {
         final Trade trade = tradeRequest.getPayload();
         TradeStatusUpdate update = TradeStatusUpdate.builder()
                 .tradeId(trade.getTradeId())
-                .tradeStatus(TradeStatus.valueOf(trade.getStatus()))
+                .status(trade.getStatus())
                 .timestamp(LocalDateTime.now())
                 .correlationId(tradeRequest.getCorrelationId())
                 .build();

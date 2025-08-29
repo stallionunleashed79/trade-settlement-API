@@ -1,5 +1,6 @@
 package com.tradesettlement.trade_service.controller;
 
+import com.tradesettlement.trade_service.models.AgGridRequest;
 import com.tradesettlement.trade_service.models.Trade;
 import com.tradesettlement.trade_service.service.StatusBroadcastService;
 import com.tradesettlement.trade_service.service.TradeService;
@@ -28,8 +29,8 @@ public class TradeController {
         return ResponseEntity.ok(tradeService.uploadCsvFile(file));
     }
 
-    @GetMapping(path = "/trades")
-    public ResponseEntity<List<Trade>> uploadCsvFile() {
+    @PostMapping(path = "/trades")
+    public ResponseEntity<List<Trade>> getTrades(@RequestBody AgGridRequest agGridRequest) {
         return ResponseEntity.ok(tradeService.getAllTrades());
     }
 

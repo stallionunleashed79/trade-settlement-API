@@ -97,12 +97,8 @@ public class TradeService {
     }
 
     private String generateIdempotencyKey(final List<Trade> trades) {
-        final List<String> idempotencyIds = trades.stream().map(trade -> String.format("req:%s:%s:%s:%s:%s",
-                trade.getTradeId(),
-                trade.getPrice(),
-                trade.getSide(),
-                trade.getStatus(),
-                trade.getSymbol())
+        final List<String> idempotencyIds = trades.stream().limit(3).map(trade -> String.format("req:%s",
+                trade.getTradeId())
         ).toList();
         return String.join("-", idempotencyIds);
     }

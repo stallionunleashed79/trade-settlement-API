@@ -1,26 +1,23 @@
 package com.tradesettlement.trade_service.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Trade {
-    String tradeId;
-    String symbol;
-    Integer quantity;
-    BigDecimal price;
-    String side;
-    String traderId;
-    LocalDateTime tradeDate;
-    String status;
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
+public class Trade extends TradeStatusUpdate {
+    private String symbol;
+    private Integer quantity;
+    private BigDecimal price;
+    private String side;
+    private String traderId;
+    private LocalDateTime tradeDate;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

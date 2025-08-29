@@ -4,16 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 public class TradeStatusUpdate {
     private String tradeId;
-    private TradeStatus tradeStatus;
+    private String status;
     private LocalDateTime timestamp;
     private String errorMessage;
     private String batchId;
