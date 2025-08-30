@@ -10,6 +10,8 @@ import com.tradesettlement.trade_service.exceptions.DuplicateFileException;
 import com.tradesettlement.trade_service.mapper.TradeMapper;
 import com.tradesettlement.trade_service.models.ErrorResponse;
 import com.tradesettlement.trade_service.models.Trade;
+import com.tradesettlement.trade_service.models.TradeFilter;
+import com.tradesettlement.trade_service.models.TradeSearchRequest;
 import com.tradesettlement.trade_service.repository.IdempotencyKeyRepository;
 import com.tradesettlement.trade_service.repository.OutboxEventRepository;
 import com.tradesettlement.trade_service.repository.TradeRepository;
@@ -37,6 +39,7 @@ public class TradeService {
     private final TradeMapper tradeMapper;
     private final TradeRepository tradeRepository;
     private final OutboxEventRepository outboxEventRepository;
+    private final TradeFilterService tradeFilterService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
@@ -79,8 +82,8 @@ public class TradeService {
         }
     }
 
-    public List<Trade> getAllTrades() {
-        return tradeRepository.findAll().stream().map(tradeMapper::toDto).collect(Collectors.toList());
+    public List<Trade> getAllTrades(final TradeSearchRequest tradeSearchRequest) {
+        return tradeFilterService.searchTrades(tradeSearchRequest);
     }
 
     private ErrorResponse createErrorResponse(String correlationId) {

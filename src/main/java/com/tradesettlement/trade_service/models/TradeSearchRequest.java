@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AgGridRequest {
+public class TradeSearchRequest {
     private Integer startRow;
     private Integer endRow;
+    private TradeFilter filterModel;
 }

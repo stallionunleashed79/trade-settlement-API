@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class TradeRequest {
+public class TradeKafkaRequest {
     private Trade payload;
     private String correlationId;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")

@@ -1,6 +1,7 @@
 package com.tradesettlement.trade_service.controller;
 
-import com.tradesettlement.trade_service.models.AgGridRequest;
+import com.tradesettlement.trade_service.models.TradeSearchRequest;
+import com.tradesettlement.trade_service.models.TradeSearchResponse;
 import com.tradesettlement.trade_service.models.Trade;
 import com.tradesettlement.trade_service.service.StatusBroadcastService;
 import com.tradesettlement.trade_service.service.TradeService;
@@ -30,11 +31,20 @@ public class TradeController {
     }
 
     @PostMapping(path = "/trades")
-    public ResponseEntity<List<Trade>> getTrades(@RequestBody AgGridRequest agGridRequest) {
-        return ResponseEntity.ok(tradeService.getAllTrades());
+    public ResponseEntity<TradeSearchResponse> getTrades(@RequestBody TradeSearchRequest tradeSearchRequest) {
+        final Integer startRow = tradeSearchRequest.getStartRow();
+        final Integer endRow = tradeSearchRequest.getEndRow();
+//        Pageable pageable = PageRequest.of(startRow / (endRow - startRow), endRow - startRow); // Calculate page number and size
+//        Page<Trade> page = dataService.searchAndPaginate(searchTerm, filterModel, sortModel, pageable);
+
+        final TradeSearchResponse tradeSearchResponse = TradeSearchResponse.builder()
+                .data(tradeService.getAllTrades(tradeSearchRequest))
+                .totalRows(100)
+                .build();
+        return ResponseEntity.ok(tradeSearchResponse);
     }
 
-    @GetMapping(value = "/api/trades/status/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/trades/status/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter streamTradeStatus() {
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
 
