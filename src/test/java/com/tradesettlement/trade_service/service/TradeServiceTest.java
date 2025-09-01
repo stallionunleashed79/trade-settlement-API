@@ -32,6 +32,7 @@ public class TradeServiceTest {
             IdempotencyKeyEntity.class);
     private final ArgumentCaptor<List<TradeEntity>> tradeRepositoryMockCaptor = ArgumentCaptor.forClass(
                List.class);
+    private TradeFilterService tradeFilterServiceMock;
 
     @BeforeEach
     void setUp() {
@@ -40,7 +41,8 @@ public class TradeServiceTest {
         idempotencyKeyRepositoryMock = mock(IdempotencyKeyRepository.class);
         OutboxEventRepository outboxEventRepositoryMock = mock(OutboxEventRepository.class);
         tradeService = new TradeService(tradeServiceUtil, idempotencyKeyRepositoryMock,
-                tradeMapperMock, tradeRepositoryMock, outboxEventRepositoryMock);
+                tradeMapperMock, tradeRepositoryMock, outboxEventRepositoryMock,
+                tradeFilterServiceMock);
     }
 
     @Test

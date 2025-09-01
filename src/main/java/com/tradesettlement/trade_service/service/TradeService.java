@@ -10,7 +10,6 @@ import com.tradesettlement.trade_service.exceptions.DuplicateFileException;
 import com.tradesettlement.trade_service.mapper.TradeMapper;
 import com.tradesettlement.trade_service.models.ErrorResponse;
 import com.tradesettlement.trade_service.models.Trade;
-import com.tradesettlement.trade_service.models.TradeFilter;
 import com.tradesettlement.trade_service.models.TradeSearchRequest;
 import com.tradesettlement.trade_service.repository.IdempotencyKeyRepository;
 import com.tradesettlement.trade_service.repository.OutboxEventRepository;
@@ -19,15 +18,16 @@ import com.tradesettlement.trade_service.util.TradeServiceUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -41,6 +41,12 @@ public class TradeService {
     private final OutboxEventRepository outboxEventRepository;
     private final TradeFilterService tradeFilterService;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Value("${pagination.start.row.default}")
+    private int startRow;
+
+    @Value("${pagination.end.row.default}")
+    private int endRow;
 
     @Transactional
     public List<Trade> uploadCsvFile(final MultipartFile file) {
@@ -83,7 +89,10 @@ public class TradeService {
     }
 
     public List<Trade> getAllTrades(final TradeSearchRequest tradeSearchRequest) {
-        return tradeFilterService.searchTrades(tradeSearchRequest);
+        final Integer startRowValue = tradeSearchRequest.getStartRow() == null ? startRow : tradeSearchRequest.getStartRow();
+        final Integer endRowValue = tradeSearchRequest.getEndRow() == null ? endRow : tradeSearchRequest.getEndRow();
+        final Pageable pageable = PageRequest.of(startRowValue / (endRowValue - startRowValue), endRowValue - startRowValue); // Calculate page number and size
+        return tradeFilterService.searchTrades(tradeSearchRequest, pageable);
     }
 
     private ErrorResponse createErrorResponse(String correlationId) {

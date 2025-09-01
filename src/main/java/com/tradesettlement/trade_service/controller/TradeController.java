@@ -32,14 +32,10 @@ public class TradeController {
 
     @PostMapping(path = "/trades")
     public ResponseEntity<TradeSearchResponse> getTrades(@RequestBody TradeSearchRequest tradeSearchRequest) {
-        final Integer startRow = tradeSearchRequest.getStartRow();
-        final Integer endRow = tradeSearchRequest.getEndRow();
-//        Pageable pageable = PageRequest.of(startRow / (endRow - startRow), endRow - startRow); // Calculate page number and size
-//        Page<Trade> page = dataService.searchAndPaginate(searchTerm, filterModel, sortModel, pageable);
-
+        final List<Trade> trades = tradeService.getAllTrades(tradeSearchRequest);
         final TradeSearchResponse tradeSearchResponse = TradeSearchResponse.builder()
-                .data(tradeService.getAllTrades(tradeSearchRequest))
-                .totalRows(100)
+                .data(trades)
+                .totalRecords(trades.size())
                 .build();
         return ResponseEntity.ok(tradeSearchResponse);
     }

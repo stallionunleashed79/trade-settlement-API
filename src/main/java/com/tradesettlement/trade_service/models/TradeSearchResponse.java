@@ -13,6 +13,6 @@ import java.util.List;
 @Builder
 public class TradeSearchResponse {
     private List<Trade> data;
-    private long totalRows;
+    private long totalRecords;
     private long lastRow;
 }
